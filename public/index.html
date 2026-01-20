@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibertyTalk - Connexion</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="form-card">
+            <h1 class="card-title">Bienvenue</h1>
+            <p class="card-subtitle">Nous sommes ravis de vous revoir !</p>
+
+            <form id="login-form">
+                <label for="email">E-MAIL</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
+
+                <label for="password">MOT DE PASSE</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+
+                <button type="submit" class="btn-primary">Se connecter</button>
+            </form>
+            
+            <form id="register-form" style="display: none;">
+                <label for="reg-username">NOM D'UTILISATEUR</label>
+                <input type="text" id="reg-username" name="username" required autocomplete="username">
+
+                <label for="reg-email">E-MAIL</label>
+                <input type="email" id="reg-email" name="email" required autocomplete="email">
+
+                <label for="reg-password">MOT DE PASSE</label>
+                <input type="password" id="reg-password" name="password" required autocomplete="new-password">
+
+                <button type="submit" class="btn-primary">S'inscrire</button>
+            </form>
+
+            <p class="switch-text">
+                Besoin d'un compte ? <a href="#" id="show-register">S'inscrire</a>
+                <span style="display: none;" id="separator">|</span>
+                Vous avez déjà un compte ? <a href="#" id="show-login" style="display: none;">Se connecter</a>
+            </p>
+        </div>
+    </div>
+    <script src="js/auth.js"></script>
+</body>
+</html>

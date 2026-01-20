@@ -1,0 +1,590 @@
+/* public/css/style.css */
+
+/* --- 0. FONT IMPORT ET VARIABLES GLOBALES --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+:root {
+    --bg-dark: #36393f; 
+    --bg-card: #32353b; 
+    --brand-color: #5865f2; 
+    --text-light: #dcddde;
+    --text-muted: #b9bbbe;
+    --sidebar-color: #2f3136;
+    --server-bar-color: #202225;
+    --channel-hover: #393c43;
+    
+    /* Variables de la Sidebar Membres */
+    --bg-members: #2f3136; 
+    --status-online: #38b2ac; /* Vert */
+    --status-offline: #72767d; /* Gris */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Style spécifique pour le bouton DM Home */
+.dm-icon {
+    width: 48px;
+    height: 48px;
+    background-color: #313338; /* Gris foncé par défaut */
+    color: #dbdee1;
+    border-radius: 50%;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 20px; /* Taille de l'icône de message */
+}
+
+/* État actif ou survol (Bleu Discord) */
+.dm-icon:hover, .dm-icon.active {
+    background-color: #5865f2; /* Bleu officiel */
+    color: white;
+    border-radius: 15px; /* Devient carré arrondi au survol ou si actif */
+}
+
+/* Assurer que les icônes Font Awesome sont bien centrées */
+.dm-icon i {
+    display: block;
+}
+
+/* Le trait de séparation entre DM et les serveurs */
+.server-separator {
+    height: 2px;
+    width: 32px;
+    background-color: #35373c;
+    margin: 4px auto 12px auto;
+    border-radius: 1px;
+}
+
+/* Nouveau séparateur propre */
+.server-separator {
+    height: 2px;
+    width: 32px;
+    background-color: #35373c;
+    margin: 4px auto 12px auto;
+    border-radius: 1px;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden; /* Important pour l'app-container */
+}
+
+/* --- 1. AUTHENTIFICATION --- */
+.auth-container {
+    padding: 20px;
+    z-index: 10;
+}
+
+.form-card {
+    background-color: var(--bg-card);
+    padding: 30px;
+    border-radius: 6px;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+    width: 400px;
+    text-align: center;
+}
+
+.card-title {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: white;
+}
+
+.card-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+form {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+input[type="email"], 
+input[type="password"],
+input[type="text"] {
+    background-color: #202225;
+    color: var(--text-light);
+    border: 1px solid #202225;
+    border-radius: 3px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+input:focus {
+    border-color: var(--brand-color);
+    outline: none;
+}
+
+.btn-primary {
+    background-color: var(--brand-color);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #4752c4;
+}
+
+.switch-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 15px;
+}
+
+.switch-text a {
+    color: var(--brand-color);
+    text-decoration: none;
+}
+
+/* --- 2. APPLICATION PRINCIPALE (Mise en page générale) --- */
+.app-container { 
+    display: flex; 
+    height: 100vh; 
+    width: 100vw; 
+}
+
+/* 2a. Colonne des Serveurs */
+.sidebar-servers { 
+    width: 72px; 
+    background-color: var(--server-bar-color); 
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+}
+.server-icon {
+    width: 50px;
+    height: 50px;
+    background-color: var(--sidebar-color);
+    color: white;
+    border-radius: 50%;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-radius 0.2s, background-color 0.2s;
+}
+.server-icon.active {
+    background-color: var(--brand-color);
+    border-radius: 15px;
+}
+.server-icon:hover {
+    border-radius: 15px;
+    background-color: var(--brand-color);
+}
+/* Styles pour le nouveau bouton Rejoindre/Rechercher */
+.server-icon.new-button {
+    background-color: #36393f; 
+    color: #38b2ac; 
+    margin-bottom: 5px;
+}
+.server-icon.new-button:hover {
+    background-color: var(--brand-color);
+    color: white;
+}
+
+
+/* 2b. Colonne des Salons */
+.sidebar-channels { 
+    width: 240px; 
+    background-color: var(--sidebar-color); 
+    display: flex;
+    flex-direction: column;
+}
+.server-header {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-weight: 700;
+    color: white;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+.channels-list {
+    flex-grow: 1;
+    padding: 10px 8px;
+    overflow-y: auto;
+}
+.channel-item {
+    padding: 6px 8px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    transition: background-color 0.15s;
+}
+.channel-item.active, .channel-item:hover {
+    background-color: var(--channel-hover);
+    color: white;
+}
+.channel-item span {
+    margin-left: 5px;
+}
+.channel-icon {
+    font-size: 18px; 
+}
+
+
+/* 2c. Zone de Chat */
+.chat-area { 
+    flex-grow: 1; 
+    background-color: var(--bg-dark); 
+    display: flex; 
+    flex-direction: column; 
+}
+.chat-header { 
+    height: 50px;
+    padding: 0 16px; 
+    border-bottom: 1px solid #202225; 
+    color: white; 
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+.messages { 
+    flex-grow: 1; 
+    overflow-y: auto; 
+    padding: 20px 20px 0 20px; 
+}
+.message-input-area { 
+    padding: 20px; 
+    border-top: 1px solid #202225; 
+}
+.message-input { 
+    width: 100%; 
+    padding: 10px 15px; 
+    border-radius: 8px; 
+    background-color: #40444b; 
+    color: var(--text-light); 
+    border: none; 
+    font-size: 16px;
+}
+.message-input:focus {
+    outline: none;
+}
+.message-entry {
+    display: flex;
+    margin-bottom: 15px;
+}
+.message-content {
+    margin-left: 15px;
+    padding-top: 2px;
+}
+.message-author {
+    font-weight: bold;
+    color: white;
+    font-size: 15px;
+}
+.message-text {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.4;
+}
+.message-timestamp {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: normal;
+    margin-left: 8px;
+}
+.profile-icon {
+    width: 32px;
+    height: 32px;
+    background-color: #555;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0; 
+}
+
+/* 2d. Colonne des Membres */
+.sidebar-members {
+    width: 240px; 
+    background-color: var(--bg-members); 
+    padding: 10px 0;
+    overflow-y: auto;
+    flex-shrink: 0; 
+}
+
+.members-list-group {
+    padding: 10px 15px 0 15px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.member-item:hover {
+    background-color: var(--channel-hover);
+    color: white;
+    border-radius: 4px;
+}
+
+.member-username {
+    margin-left: 10px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+.status-indicator.online {
+    background-color: var(--status-online);
+}
+.status-indicator.offline {
+    background-color: var(--status-offline);
+}
+
+
+/* --- 3. PROFIL BAR EN BAS DES SALONS --- */
+.user-profile-bar {
+    background-color: #292b2f; 
+    padding: 10px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0; 
+}
+
+.profile-small {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.profile-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.profile-username-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-id-text {
+    font-size: 12px;
+    color: #b9bbbe;
+}
+
+.settings-btn {
+    background: none;
+    border: none;
+    color: #b9bbbe;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    margin-left: 10px;
+}
+.settings-btn:hover {
+    color: white;
+}
+
+/* --- 4. MODAL (POPUP) --- */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 20; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4); 
+}
+
+.modal-content {
+    background-color: var(--bg-dark);
+    margin: 15% auto; 
+    padding: 20px;
+    border: 1px solid #888;
+    width: 400px; 
+    border-radius: 8px;
+    color: var(--text-light);
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.logout-btn {
+    margin-top: 20px;
+    background-color: var(--brand-color); 
+}
+.logout-btn:hover {
+    background-color: #4752c4;
+}
+
+.btn-primary.logout-btn { 
+    background-color: #fa5252;
+}
+.btn-primary.logout-btn:hover {
+    background-color: #d83939;
+}
+
+/* --- 5. STYLES ADMIN MODAL --- */
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.15s, background-color 0.15s;
+    border-radius: 4px 4px 0 0;
+}
+
+.tab-btn:hover {
+    color: var(--text-light);
+}
+
+.tab-btn.active {
+    background-color: var(--bg-dark); 
+    color: white;
+    border-bottom: 2px solid var(--brand-color);
+}
+
+.tab-content {
+    padding: 10px 0;
+}
+/* Container de la carte */
+.user-card-content {
+    background-color: #232428;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    border: none;
+}
+
+/* Zone d'infos noire sous l'avatar */
+.user-card-info-box {
+    background-color: #111214;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+/* Container des boutons Message / Ajouter */
+#user-card-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    margin-top: 5px;
+}
+
+/* Style des boutons d'action */
+#user-card-actions button {
+    flex: 1;
+    border: none;
+    border-radius: 3px;
+    color: white;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#card-msg-btn {
+    background-color: #5865f2; /* Bleu Discord */
+}
+
+#card-msg-btn:hover {
+    background-color: #4752c4;
+}
+
+#card-add-friend-btn {
+    background-color: #248046; /* Vert Discord */
+}
+
+#card-add-friend-btn:hover {
+    background-color: #1a6334;
+}
+
+/* Texte "À propos de moi" */
+.user-card-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #b9bbbe;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    display: block;
+}
+
+#user-card-bio {
+    font-size: 13px;
+    color: #dcddde;
+    line-height: 1.4;
+}
