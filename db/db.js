@@ -10,14 +10,19 @@ const sequelize = new Sequelize(
     {
         host: process.env.DB_HOST,
         dialect: 'mysql', 
-        port: process.env.DB_PORT,
+        port: process.env.DB_PORT || 3306,
         logging: false, 
-        dialectOptions: {},
+        dialectOptions: {
+            // AJOUT : Configuration SSL pour les bases de données distantes
+            ssl: {
+                require: true,
+                rejectUnauthorized: false // Permet d'accepter les certificats auto-signés fréquents chez les hébergeurs
+            }
+        },
         timezone: '+01:00' 
     }
 );
 
-// db/db.js
 async function connectDB() {
     try {
         await sequelize.authenticate();
@@ -28,7 +33,7 @@ async function connectDB() {
         if (process.env.DB_FORCE_SYNC === 'true') {
             syncOptions.force = true; 
             console.log('⚠️ MODE DANGER : Réinitialisation complète.');
-        } else if (process.env.DB_ALTER_SYNC === 'true') { // On n'utilise ALTER que si précisé
+        } else if (process.env.DB_ALTER_SYNC === 'true') { 
             syncOptions.alter = true;
             console.log('🔧 Mode ALTER actif : Mise à jour des colonnes.');
         }
@@ -36,7 +41,9 @@ async function connectDB() {
         await sequelize.sync(syncOptions); 
         console.log('✅ Synchronisation réussie.');
     } catch (error) {
-        console.error('❌ Erreur :', error);
+        console.error('❌ Erreur de connexion MySQL :', error);
+        // On ne coupe pas forcément le processus immédiatement sur Render, 
+        // mais c'est utile pour debugger les logs.
         process.exit(1);
     }
 }
