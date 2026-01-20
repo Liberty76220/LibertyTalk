@@ -18,6 +18,7 @@ let currentChannelName = null;
 let currentVoiceChannelId = null;
 let localStream = null; 
 let isMuted = false;
+let isDeafened = false;
 
 // --- VARIABLES WEBRTC & AUDIO ---
 let peers = {}; 
@@ -41,6 +42,7 @@ const activeVoicePanel = document.getElementById('active-voice-panel');
 const activeVoiceName = document.getElementById('active-voice-name');
 const btnMute = document.getElementById('btn-mute');
 const btnDisconnect = document.getElementById('btn-disconnect');
+const btnDeafen = document.getElementById('btn-deafen');
 
 // Éléments du Profil/Modal
 const pfpInput = document.getElementById('upload-pfp-input');
@@ -561,27 +563,55 @@ document.addEventListener('DOMContentLoaded', () => {
     editEmailInput.value = currentEmail;
 });
 
-// --- BOUTONS DU PANNEAU VOCAL (NOUVEAU) ---
+// --- LOGIQUE POUR REJOINDRE UN SERVEUR (Boussole) ---
+if (joinServerBtn) {
+    joinServerBtn.onclick = async () => {
+        const serverCode = await showCustomAlert(
+            "Rejoindre un serveur", 
+            "Entrez le NOM exact du serveur (ex: SSBU) :", 
+            "prompt"
+        );
 
-let isDeafened = false;
-const btnDeafen = document.getElementById('btn-deafen'); // Assure-toi que cet ID existe dans ton HTML
+        if (serverCode) {
+            try {
+                const response = await authenticatedFetch('/api/servers/join', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: serverCode }) 
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    await showCustomAlert("Succès", "Serveur rejoint !", "alert");
+                    loadServers(); 
+                } else {
+                    await showCustomAlert("Erreur", result.message || "Serveur introuvable", "alert");
+                }
+            } catch (error) {
+                console.error("Erreur joinServer:", error);
+                await showCustomAlert("Erreur", "Problème de connexion au serveur.", "alert");
+            }
+        }
+    };
+}
+
+// --- BOUTONS DU PANNEAU VOCAL ---
 
 if (btnDeafen) {
     btnDeafen.onclick = () => {
         isDeafened = !isDeafened;
         
-        // 1. Couper/Activer le son de tous les utilisateurs actuels
         Object.keys(remoteAudios).forEach(id => {
             if (remoteAudios[id]) remoteAudios[id].muted = isDeafened;
         });
 
-        // 2. Mise à jour visuelle du bouton
         if (isDeafened) {
-            btnDeafen.style.color = '#ed4245'; // Rouge
-            btnDeafen.innerHTML = '<i class="fas fa-headphones-alt"></i>'; // Icône barrée si tu en as une, sinon icône normale en rouge
+            btnDeafen.style.color = '#ed4245';
+            btnDeafen.innerHTML = '<i class="fas fa-headphones-alt"></i>';
             showCustomAlert("Casque", "Son coupé.", "alert");
         } else {
-            btnDeafen.style.color = '#b9bbbe'; // Gris
+            btnDeafen.style.color = '#b9bbbe';
             btnDeafen.innerHTML = '<i class="fas fa-headphones"></i>';
             showCustomAlert("Casque", "Son activé.", "alert");
         }
@@ -627,12 +657,10 @@ async function joinVoiceChannel(channelId, channelName) {
 
         currentVoiceChannelId = channelId;
         
-        // AFFICHER LE PANNEAU VOCAL
         if (activeVoicePanel) {
             activeVoicePanel.style.display = 'flex';
             if (activeVoiceName) activeVoiceName.textContent = channelName;
             
-            // Reset visuel du mute
             isMuted = false;
             if (btnMute) {
                 btnMute.style.color = '#b9bbbe';
@@ -640,7 +668,6 @@ async function joinVoiceChannel(channelId, channelName) {
             }
         }
 
-        // Lancer le monitoring audio pour le halo vert (Soi-même)
         monitorAudio(localStream, socket.id);
         
         socket.emit('joinVoiceChannel', {
@@ -667,7 +694,6 @@ function leaveVoiceChannel() {
         if (remoteAudios[id]) remoteAudios[id].remove();
     });
 
-    // Nettoyer l'audio context (Halo Vert)
     if (audioContext) {
         audioContext.close();
         audioContext = null;
@@ -685,7 +711,6 @@ function leaveVoiceChannel() {
         currentVoiceChannelId = null;
     }
     
-    // CACHER LE PANNEAU VOCAL
     if (activeVoicePanel) activeVoicePanel.style.display = 'none';
     
     currentChannelNameEl.textContent = currentChannelName ? `# ${currentChannelName}` : "Bienvenue !";
@@ -711,7 +736,6 @@ function updateVoiceUsersUI(channelId, users) {
                 userDiv.style.color = '#b9bbbe';
                 userDiv.style.fontSize = '13px';
                 
-                // On ajoute un ID unique à l'avatar pour le cibler avec monitorAudio (Halo vert)
                 const avatarId = `voice-avatar-${user.socketId}`;
 
                 let avatarHtml = '';
@@ -728,14 +752,12 @@ function updateVoiceUsersUI(channelId, users) {
     }
 }
 
-// --- FONCTION MAGIQUE DU HALO VERT (Analyse Audio) ---
 function monitorAudio(stream, socketId) {
     try {
         if (!audioContext) {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
         
-        // Si le context est suspendu (comportement navigateur), on le relance
         if (audioContext.state === 'suspended') {
             audioContext.resume();
         }
@@ -747,22 +769,18 @@ function monitorAudio(stream, socketId) {
         
         const dataArray = new Uint8Array(analyser.frequencyBinCount);
         
-        // On vérifie le volume toutes les 100ms
         const intervalId = setInterval(() => {
             const avatar = document.getElementById(`voice-avatar-${socketId}`);
-            // Si l'avatar n'est plus là, c'est que l'utilisateur est parti
             if (!avatar) return; 
 
             analyser.getByteFrequencyData(dataArray);
             
-            // Calculer la moyenne du volume
             let sum = 0;
             for (let i = 0; i < dataArray.length; i++) {
                 sum += dataArray[i];
             }
             const average = sum / dataArray.length;
 
-            // Seuil de détection (si > 10, on considère qu'il parle)
             if (average > 10) {
                 avatar.classList.add('speaking');
             } else {
@@ -808,7 +826,6 @@ socket.on("userLeftVoice", userID => {
         remoteAudios[userID].remove();
         delete remoteAudios[userID];
     }
-    // Arrêter l'analyseur audio de cet utilisateur
     if (audioAnalysers[userID]) {
         clearInterval(audioAnalysers[userID]);
         delete audioAnalysers[userID];
@@ -828,7 +845,7 @@ function createPeer(userToSignal, callerID, stream) {
 
     peer.on("stream", stream => {
         playRemoteStream(stream, userToSignal);
-        monitorAudio(stream, userToSignal); // Halo vert pour l'autre
+        monitorAudio(stream, userToSignal);
     });
 
     return peer;
@@ -847,7 +864,7 @@ function addPeer(incomingSignal, callerID, stream) {
 
     peer.on("stream", stream => {
         playRemoteStream(stream, callerID);
-        monitorAudio(stream, callerID); // Halo vert pour l'autre
+        monitorAudio(stream, callerID);
     });
 
     peer.signal(incomingSignal);
@@ -859,6 +876,11 @@ function playRemoteStream(stream, userID) {
     audio.srcObject = stream;
     audio.id = `audio-${userID}`;
     audio.autoplay = true;
+    
+    if (isDeafened) {
+        audio.muted = true;
+    }
+
     document.body.appendChild(audio);
     remoteAudios[userID] = audio;
 }
